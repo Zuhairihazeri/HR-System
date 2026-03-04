@@ -2,6 +2,16 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import * as z from 'zod';
+
+const employeeSchema = z.object({
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  position: z.string().min(2),
+  companyId: z.string().min(1),
+});
 
 export async function getPekerja() {
   try {
@@ -47,19 +57,16 @@ export async function getCompanies() {
 
 export async function createPekerja(data: any) {
   try {
+    const validatedData = employeeSchema.parse(data);
     const employee = await prisma.employee.create({
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        position: data.position,
-        companyId: data.companyId,
-      },
+      data: validatedData,
     });
     revalidatePath('/pekerja');
     return { success: true, data: employee };
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.errors[0].message };
+    }
     console.error('Error creating employee:', error);
     return { success: false, error: 'Failed to create employee' };
   }
@@ -67,20 +74,18 @@ export async function createPekerja(data: any) {
 
 export async function updatePekerja(id: string, data: any) {
   try {
+    const validatedData = employeeSchema.parse(data);
     const employee = await prisma.employee.update({
       where: { id },
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        position: data.position,
-      },
+      data: validatedData,
     });
     revalidatePath('/pekerja');
     revalidatePath(`/pekerja/${id}`);
     return { success: true, data: employee };
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.errors[0].message };
+    }
     console.error('Error updating employee:', error);
     return { success: false, error: 'Failed to update employee' };
   }

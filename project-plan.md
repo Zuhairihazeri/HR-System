@@ -27,6 +27,6 @@
 - [x] **Task 4: UI Implementation - Edit/Details Page**
     - Create `src/app/(dashboard)/pekerja/[id]/page.tsx`.
     - Populate the form with existing data and handle updates.
-- [ ] **Task 5: Validation & Integration**
+- [x] **Task 5: Validation & Integration**
     - Add Zod validation for form inputs.
     - Test all CRUD operations.

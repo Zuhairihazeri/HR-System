@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { createPekerja, updatePekerja } from '@/lib/actions/pekerja';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +19,17 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
+const formSchema = z.object({
+  firstName: z.string().min(2, 'Nama pertama sekurang-kurangnya 2 aksara'),
+  lastName: z.string().min(2, 'Nama keluarga sekurang-kurangnya 2 aksara'),
+  email: z.string().email('Sila masukkan email yang sah'),
+  phone: z.string().optional(),
+  position: z.string().min(2, 'Sila masukkan jawatan'),
+  companyId: z.string().min(1, 'Sila pilih syarikat'),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 interface PekerjaFormProps {
   initialData?: any;
   companies: any[];
@@ -28,20 +42,26 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
 
   const isEdit = !!initialData;
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData || {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      position: '',
+      companyId: '',
+    },
+  });
+
+  async function onSubmit(data: FormValues) {
     setLoading(true);
     setError(null);
-
-    const formData = new FormData(event.currentTarget);
-    const data = {
-      firstName: formData.get('firstName') as string,
-      lastName: formData.get('lastName') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      position: formData.get('position') as string,
-      companyId: formData.get('companyId') as string,
-    };
 
     try {
       let response;
@@ -65,32 +85,30 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="max-w-2xl mx-auto shadow-md">
       <CardHeader>
         <CardTitle>{isEdit ? 'Edit Maklumat Pekerja' : 'Tambah Pekerja Baru'}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">Nama Pertama</Label>
               <Input
                 id="firstName"
-                name="firstName"
-                defaultValue={initialData?.firstName}
-                required
+                {...register('firstName')}
                 placeholder="cth: Ahmad"
               />
+              {errors.firstName && <p className="text-xs text-destructive">{errors.firstName.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">Nama Keluarga</Label>
               <Input
                 id="lastName"
-                name="lastName"
-                defaultValue={initialData?.lastName}
-                required
+                {...register('lastName')}
                 placeholder="cth: Abu"
               />
+              {errors.lastName && <p className="text-xs text-destructive">{errors.lastName.message}</p>}
             </div>
           </div>
 
@@ -98,38 +116,39 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              name="email"
               type="email"
-              defaultValue={initialData?.email}
-              required
+              {...register('email')}
               placeholder="ahmad@company.com"
             />
+            {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">No. Telefon</Label>
             <Input
               id="phone"
-              name="phone"
-              defaultValue={initialData?.phone}
+              {...register('phone')}
               placeholder="+60123456789"
             />
+            {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="position">Jawatan</Label>
             <Input
               id="position"
-              name="position"
-              defaultValue={initialData?.position}
-              required
+              {...register('position')}
               placeholder="cth: Software Engineer"
             />
+            {errors.position && <p className="text-xs text-destructive">{errors.position.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="companyId">Syarikat</Label>
-            <Select name="companyId" defaultValue={initialData?.companyId || ''} required>
+            <Select 
+              onValueChange={(value) => setValue('companyId', value)} 
+              defaultValue={initialData?.companyId || ''}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Pilih Syarikat" />
               </SelectTrigger>
@@ -141,11 +160,12 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            {errors.companyId && <p className="text-xs text-destructive">{errors.companyId.message}</p>}
           </div>
 
-          {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+          {error && <p className="text-sm text-destructive font-medium bg-destructive/10 p-3 rounded-md">{error}</p>}
 
-          <div className="flex justify-end gap-4 pt-4">
+          <div className="flex justify-end gap-4 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
@@ -154,7 +174,7 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
             >
               Batal
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="min-w-32">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEdit ? 'Kemaskini' : 'Simpan'}
             </Button>
