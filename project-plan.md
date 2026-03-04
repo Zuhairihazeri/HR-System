@@ -18,7 +18,7 @@
 - [x] **Task 1: Server Actions Setup**
     - Create `src/lib/actions/pekerja.ts`.
     - Implement `getPekerja()`, `createPekerja()`, `updatePekerja()`, and `deletePekerja()`.
-- [ ] **Task 2: UI Implementation - Employee List**
+- [x] **Task 2: UI Implementation - Employee List**
     - Create `src/app/(dashboard)/pekerja/page.tsx`.
     - Implement the `PekerjaTable` component with search and filtering.
 - [ ] **Task 3: UI Implementation - Add Employee Form**
