@@ -24,7 +24,7 @@
 - [x] **Task 3: UI Implementation - Add Employee Form**
     - Create `src/app/(dashboard)/pekerja/new/page.tsx`.
     - Create a reusable `PekerjaForm`.
-- [ ] **Task 4: UI Implementation - Edit/Details Page**
+- [x] **Task 4: UI Implementation - Edit/Details Page**
     - Create `src/app/(dashboard)/pekerja/[id]/page.tsx`.
     - Populate the form with existing data and handle updates.
 - [ ] **Task 5: Validation & Integration**

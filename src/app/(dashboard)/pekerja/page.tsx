@@ -61,9 +61,11 @@ export default async function PekerjaPage() {
                   <TableCell>{employee.position}</TableCell>
                   <TableCell>{employee.company.name}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <Link href={`/pekerja/${employee.id}`}>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))

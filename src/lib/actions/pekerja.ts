@@ -20,6 +20,21 @@ export async function getPekerja() {
   }
 }
 
+export async function getPekerjaById(id: string) {
+  try {
+    const employee = await prisma.employee.findUnique({
+      where: { id },
+      include: {
+        company: true,
+      },
+    });
+    return { success: true, data: employee };
+  } catch (error) {
+    console.error('Error fetching employee:', error);
+    return { success: false, error: 'Failed to fetch employee' };
+  }
+}
+
 export async function getCompanies() {
   try {
     const companies = await prisma.company.findMany();
