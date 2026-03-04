@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Company {
+  id        String     @id @default(cuid())
+  name      String
+  email     String?    @unique
+  employees Employee[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Employee {
+  id                 String               @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String               @unique
+  phone              String?
+  position           String
+  companyId          String
+  company            Company              @relation(fields: [companyId], references: [id])
+  attendances        Attendance[]
+  payrolls           Payroll[]
+  disciplinaryRecords DisciplinaryRecord[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model Attendance {
+  id         String   @id @default(cuid())
+  date       DateTime @default(now())
+  checkIn    DateTime
+  checkOut   DateTime?
+  status     String   // e.g., PRESENT, ABSENT, LATE, LEAVE
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Payroll {
+  id          String   @id @default(cuid())
+  month       Int
+  year        Int
+  grossSalary Float
+  netSalary   Float
+  kwsp        Float    // Employee portion
+  perkeso     Float
+  eis         Float
+  status      String   // e.g., PENDING, PAID
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model DisciplinaryRecord {
+  id          String   @id @default(cuid())
+  type        String   // e.g., WARNING, SUSPENSION
+  description String
+  date        DateTime @default(now())
+  isActive    Boolean  @default(true)
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+}
