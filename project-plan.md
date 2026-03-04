@@ -21,7 +21,7 @@
 - [x] **Task 2: UI Implementation - Employee List**
     - Create `src/app/(dashboard)/pekerja/page.tsx`.
     - Implement the `PekerjaTable` component with search and filtering.
-- [ ] **Task 3: UI Implementation - Add Employee Form**
+- [x] **Task 3: UI Implementation - Add Employee Form**
     - Create `src/app/(dashboard)/pekerja/new/page.tsx`.
     - Create a reusable `PekerjaForm`.
 - [ ] **Task 4: UI Implementation - Edit/Details Page**

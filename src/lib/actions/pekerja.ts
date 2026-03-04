@@ -20,6 +20,16 @@ export async function getPekerja() {
   }
 }
 
+export async function getCompanies() {
+  try {
+    const companies = await prisma.company.findMany();
+    return { success: true, data: companies };
+  } catch (error) {
+    console.error('Error fetching companies:', error);
+    return { success: false, error: 'Failed to fetch companies' };
+  }
+}
+
 export async function createPekerja(data: any) {
   try {
     const employee = await prisma.employee.create({
