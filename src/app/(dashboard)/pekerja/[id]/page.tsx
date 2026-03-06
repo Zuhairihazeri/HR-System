@@ -2,8 +2,13 @@ import { getPekerjaById, getCompanies } from '@/lib/actions/pekerja';
 import { PekerjaForm } from '@/components/pekerja/PekerjaForm';
 import { notFound } from 'next/navigation';
 
-export default async function EditPekerjaPage({ params }: { params: { id: string } }) {
-  const { data: employee, success: employeeSuccess } = await getPekerjaById(params.id);
+export default async function EditPekerjaPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  const { id } = await params;
+  const { data: employee, success: employeeSuccess } = await getPekerjaById(id);
   const { data: companies, success: companiesSuccess } = await getCompanies();
 
   if (!employeeSuccess || !employee) {
@@ -21,7 +26,7 @@ export default async function EditPekerjaPage({ params }: { params: { id: string
 
       <PekerjaForm 
         initialData={employee} 
-        companies={companiesSuccess ? companies : []} 
+        companies={companies ?? []} 
       />
     </div>
   );

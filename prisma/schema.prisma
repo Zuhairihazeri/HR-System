@@ -3,42 +3,57 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Company {
   id        String     @id @default(cuid())
   name      String
   email     String?    @unique
-  employees Employee[]
+  regNo     String?
+  address   String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  employees Employee[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  role      String   @default("USER") // ADMIN, USER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Employee {
-  id                 String               @id @default(cuid())
-  firstName          String
-  lastName           String
-  email              String               @unique
-  phone              String?
-  position           String
-  companyId          String
-  company            Company              @relation(fields: [companyId], references: [id])
-  attendances        Attendance[]
-  payrolls           Payroll[]
+  id                  String               @id @default(cuid())
+  firstName           String
+  lastName            String
+  email               String               @unique
+  phone               String?
+  position            String
+  companyId           String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  attendances         Attendance[]
   disciplinaryRecords DisciplinaryRecord[]
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  claims              Claim[]
+  company             Company              @relation(fields: [companyId], references: [id])
+  payrolls            Payroll[]
 }
 
 model Attendance {
-  id         String   @id @default(cuid())
-  date       DateTime @default(now())
+  id         String    @id @default(cuid())
+  date       DateTime  @default(now())
   checkIn    DateTime
   checkOut   DateTime?
-  status     String   // e.g., PRESENT, ABSENT, LATE, LEAVE
+  status     String
   employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id])
 }
 
 model Payroll {
@@ -47,21 +62,42 @@ model Payroll {
   year        Int
   grossSalary Float
   netSalary   Float
-  kwsp        Float    // Employee portion
+  kwsp        Float
   perkeso     Float
   eis         Float
-  status      String   // e.g., PENDING, PAID
+  status      String
   employeeId  String
-  employee    Employee @relation(fields: [employeeId], references: [id])
   createdAt   DateTime @default(now())
+  employee    Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Claim {
+  id          String   @id @default(cuid())
+  type        String
+  amount      Float
+  description String?
+  date        DateTime @default(now())
+  status      String   @default("PENDING")
+  employeeId  String
+  createdAt   DateTime @default(now())
+  employee    Employee @relation(fields: [employeeId], references: [id])
 }
 
 model DisciplinaryRecord {
   id          String   @id @default(cuid())
-  type        String   // e.g., WARNING, SUSPENSION
+  type        String
   description String
   date        DateTime @default(now())
   isActive    Boolean  @default(true)
   employeeId  String
   employee    Employee @relation(fields: [employeeId], references: [id])
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  type        String   @default("EVENT") // EVENT, BIRTHDAY, DEADLINE
+  description String?
+  createdAt   DateTime @default(now())
 }

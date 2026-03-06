@@ -1,8 +1,15 @@
+"use client"
+
 import { Search, Bell, User } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useSession } from "next-auth/react"
 
 export function Header() {
+  const { data: session } = useSession()
+  const role = (session?.user as any)?.role || "USER"
+  const name = session?.user?.name || "User"
+
   return (
     <header className="h-16 border-b bg-white px-8 flex items-center justify-between">
       <div className="w-96 relative">
@@ -20,8 +27,8 @@ export function Header() {
         </Button>
         <div className="flex items-center gap-3 pl-4 border-l">
           <div className="text-right">
-            <p className="text-sm font-medium">Zek Management</p>
-            <p className="text-xs text-gray-500">Admin</p>
+            <p className="text-sm font-medium">{name}</p>
+            <p className="text-xs text-gray-500 capitalize">{role === "ADMIN" ? "Administrator" : "User"}</p>
           </div>
           <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
             <User className="h-5 w-5 text-indigo-600" />

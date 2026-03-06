@@ -13,7 +13,7 @@ export default async function NewPekerjaPage() {
         </p>
       </div>
 
-      <PekerjaForm companies={success ? companies : []} />
+      <PekerjaForm companies={companies ?? []} />
     </div>
   );
 }

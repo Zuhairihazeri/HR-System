@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { createPekerja, updatePekerja } from '@/lib/actions/pekerja';
@@ -45,7 +45,7 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
   const {
     register,
     handleSubmit,
-    setValue,
+    control,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -145,21 +145,27 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="companyId">Syarikat</Label>
-            <Select 
-              onValueChange={(value) => setValue('companyId', value)} 
-              defaultValue={initialData?.companyId || ''}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih Syarikat" />
-              </SelectTrigger>
-              <SelectContent>
-                {companies.map((company) => (
-                  <SelectItem key={company.id} value={company.id}>
-                    {company.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="companyId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih Syarikat" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.companyId && <p className="text-xs text-destructive">{errors.companyId.message}</p>}
           </div>
 
@@ -184,3 +190,4 @@ export function PekerjaForm({ initialData, companies }: PekerjaFormProps) {
     </Card>
   );
 }
+

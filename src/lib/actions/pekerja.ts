@@ -13,9 +13,16 @@ const employeeSchema = z.object({
   companyId: z.string().min(1),
 });
 
-export async function getPekerja() {
+export async function getPekerja(query?: string) {
   try {
     const employees = await prisma.employee.findMany({
+      where: query ? {
+        OR: [
+          { firstName: { contains: query, mode: 'insensitive' } },
+          { lastName: { contains: query, mode: 'insensitive' } },
+          { email: { contains: query, mode: 'insensitive' } },
+        ],
+      } : undefined,
       include: {
         company: true,
       },
@@ -65,7 +72,7 @@ export async function createPekerja(data: any) {
     return { success: true, data: employee };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message };
+      return { success: false, error: error.issues[0].message };
     }
     console.error('Error creating employee:', error);
     return { success: false, error: 'Failed to create employee' };
@@ -84,7 +91,7 @@ export async function updatePekerja(id: string, data: any) {
     return { success: true, data: employee };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message };
+      return { success: false, error: error.issues[0].message };
     }
     console.error('Error updating employee:', error);
     return { success: false, error: 'Failed to update employee' };

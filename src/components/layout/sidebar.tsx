@@ -11,23 +11,27 @@ import {
   ShieldAlert, 
   FileText, 
   Settings,
-  Menu
+  LogOut
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Kalendar HR", href: "/calendar", icon: Calendar },
-  { name: "Pekerja", href: "/employees", icon: Users },
-  { name: "Gaji & Payroll", href: "/payroll", icon: CircleDollarSign },
-  { name: "Kehadiran", href: "/attendance", icon: Clock },
-  { name: "Disiplin", href: "/discipline", icon: ShieldAlert },
-  { name: "Tuntutan", href: "/claims", icon: FileText },
-  { name: "Tetapan", href: "/settings", icon: Settings },
-]
+import { signOut, useSession } from "next-auth/react"
+import { Button } from "@/components/ui/button"
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
+
+  const navigation = [
+    { name: "Dashboard", href: "/", icon: LayoutDashboard, show: true },
+    { name: "Kalendar HR", href: "/calendar", icon: Calendar, show: true },
+    { name: "Pekerja", href: "/pekerja", icon: Users, show: isAdmin },
+    { name: "Gaji & Payroll", href: "/payroll", icon: CircleDollarSign, show: isAdmin },
+    { name: "Kehadiran", href: "/attendance", icon: Clock, show: true },
+    { name: "Disiplin", href: "/discipline", icon: ShieldAlert, show: true },
+    { name: "Tuntutan", href: "/claims", icon: FileText, show: true },
+    { name: "Tetapan", href: "/settings", icon: Settings, show: isAdmin },
+  ]
 
   return (
     <div className="flex h-full w-64 flex-col bg-white border-r">
@@ -35,7 +39,7 @@ export function Sidebar() {
         <span className="text-xl font-bold text-indigo-600">HR Portal</span>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => {
+        {navigation.filter(item => item.show).map((item) => {
           const isActive = pathname === item.href
           return (
             <Link
@@ -57,6 +61,16 @@ export function Sidebar() {
           )
         })}
       </nav>
+      <div className="p-4 border-t">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+          onClick={() => signOut()}
+        >
+          <LogOut className="mr-3 h-5 w-5" />
+          Log Keluar
+        </Button>
+      </div>
     </div>
   )
 }

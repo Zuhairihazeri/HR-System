@@ -1,19 +1,17 @@
 import { getPekerja } from '@/lib/actions/pekerja';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { PekerjaTable } from '@/components/pekerja/PekerjaTable';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Plus, Search, MoreHorizontal } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-export default async function PekerjaPage() {
-  const { data: employees, success } = await getPekerja();
+export default async function PekerjaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const { data: employees, success } = await getPekerja(q);
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -32,53 +30,20 @@ export default async function PekerjaPage() {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
+        <form className="relative flex-1 max-w-sm" action="/pekerja" method="GET">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Cari pekerja..." className="pl-10" />
-        </div>
+          <Input 
+            name="q"
+            defaultValue={q}
+            placeholder="Cari pekerja..." 
+            className="pl-10" 
+          />
+          <button type="submit" className="hidden" />
+        </form>
         <Button variant="outline">Filter</Button>
       </div>
 
-      <div className="rounded-md border bg-white shadow-sm">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nama</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Jawatan</TableHead>
-              <TableHead>Syarikat</TableHead>
-              <TableHead className="text-right">Tindakan</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {success && employees && employees.length > 0 ? (
-              employees.map((employee) => (
-                <TableRow key={employee.id}>
-                  <TableCell className="font-medium">
-                    {employee.firstName} {employee.lastName}
-                  </TableCell>
-                  <TableCell>{employee.email}</TableCell>
-                  <TableCell>{employee.position}</TableCell>
-                  <TableCell>{employee.company.name}</TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/pekerja/${employee.id}`}>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  Tiada pekerja dijumpai.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <PekerjaTable employees={success && employees ? employees : []} />
     </div>
   );
 }
